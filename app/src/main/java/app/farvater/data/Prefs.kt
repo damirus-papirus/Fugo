@@ -35,7 +35,7 @@ data class AppSettings(
     val safeMode: Boolean = true,
     val encryptedDns: Boolean = true,
     val sendHwid: Boolean = true,
-    val autoUpdates: Boolean = true,
+    val autoUpdates: Boolean = false,
     val bypassApps: Set<String> = emptySet(),
     val mtu: Int = 8500,
     val netMode: NetModeChoice = NetModeChoice.AUTO,
@@ -78,8 +78,13 @@ class Prefs(context: Context) {
     var settings: AppSettings
         get() = cachedSettings ?: run {
             val stored = read<AppSettings>("settings") ?: AppSettings()
-            val current = stored.copy(testUrl = ProbeUrls.migrate(stored.testUrl))
+            val migrateAutoUpdates = !sp.getBoolean("fugo_auto_updates_migrated", false)
+            val current = stored.copy(
+                testUrl = ProbeUrls.migrate(stored.testUrl),
+                autoUpdates = if (migrateAutoUpdates) false else stored.autoUpdates,
+            )
             if (current != stored) write("settings", current)
+            if (migrateAutoUpdates) sp.edit().putBoolean("fugo_auto_updates_migrated", true).apply()
             current
         }.also { cachedSettings = it }
         set(value) = synchronized(selectionLock) {
