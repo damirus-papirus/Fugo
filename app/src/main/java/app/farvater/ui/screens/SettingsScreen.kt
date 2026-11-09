@@ -1,5 +1,6 @@
 package app.farvater.ui.screens
 
+import app.farvater.data.UpdateWorker
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.ui.res.stringResource
@@ -1006,6 +1007,7 @@ private fun UpdatesPage(
     onChangelog: () -> Unit,
 ) {
     val c = Ios.colors
+    val context = LocalContext.current
     IosSection(
         footer = stringResource(R.string.update_check_hint),
     ) {
@@ -1024,7 +1026,10 @@ private fun UpdatesPage(
             icon = Icons.Rounded.NotificationsActive,
             iconTint = c.red,
             checked = settings.autoUpdates,
-            onCheckedChange = { v -> onChange { it.copy(autoUpdates = v) } },
+            onCheckedChange = { v ->
+                onChange { it.copy(autoUpdates = v) }
+                UpdateWorker.schedule(context)
+            },
         )
     }
     IosSection {
