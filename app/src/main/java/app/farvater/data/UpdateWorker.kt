@@ -45,7 +45,6 @@ class UpdateWorker(context: Context, params: WorkerParameters) : CoroutineWorker
             val manager = WorkManager.getInstance(context)
             if (!App.prefs.settings.autoUpdates) {
                 manager.cancelUniqueWork("updates")
-                manager.cancelUniquePeriodicWork("updates")
                 return
             }
             val request = PeriodicWorkRequestBuilder<UpdateWorker>(15, TimeUnit.MINUTES)
